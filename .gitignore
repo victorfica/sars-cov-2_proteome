@@ -125,7 +125,14 @@ dmypy.json
 .pyre/
 
 # data elements
-/data/
+data/processed/*
+data/raw/*
+data/interim/*
+# exception to the rule
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/interim/.gitkeep
+
 
 # pycharm
 
