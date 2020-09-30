@@ -337,6 +337,12 @@ class MafftCommandline(AbstractCommandline):
                 "Incorporate the AA/nuc composition information into "
                 "the scoring matrix (True) or not (False, default)",
             ),
+            _Switch(
+                ["--keeplength", "keeplength"],
+                "If the this option is given, then the alignment length is unchanged."
+                " Insertions at the new sequences are deleted."
+                "work with --add, --addfragments or --addfull. ",
+            ),
             # **** Output ****
             # Name length for CLUSTAL and PHYLIP format output
             _Option(
@@ -405,6 +411,13 @@ class MafftCommandline(AbstractCommandline):
                 ["--seed", "seed"],
                 "Seed alignments given in alignment_n (fasta format) "
                 "are aligned with sequences in input.",
+                filename=True,
+                equate=False,
+            ),
+            # New addfragments options
+            _Option(
+                ["--addfragments", "addfragments"],
+                "Add fragmentary sequence(s) to existing alignment or sequence ",
                 filename=True,
                 equate=False,
             ),
