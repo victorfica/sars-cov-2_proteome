@@ -31,7 +31,7 @@ def parse_raw(rawfile):
 
 class ProcessRaw:
 
-    def __init__(self, rawfile, reference=True, others=False, outdir='sars2_proteins'):
+    def __init__(self, rawfile, reference=True, others=True, outdir='sars2_proteins'):
         """
 
         Parameters
@@ -57,7 +57,6 @@ class ProcessRaw:
         # get dict of parsed records
         print('Parsing rawfile Fasta...')
         self.ref_seqs, self.others_seqs = parse_raw(self.rawfile)
-        print('Ready...')
 
     def ref_tofasta(self):
         """
@@ -102,11 +101,11 @@ class ProcessRaw:
                 print(f"Processed {protein_names[i]}...")
 
 
-    def run(self, reference=True, others=True):
+    def run(self):
 
-        if reference:
+        if self.reference:
             self.ref_tofasta()
-        if others:
+        if self.others:
             self.others_tofasta()
 
 
