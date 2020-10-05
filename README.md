@@ -1,6 +1,6 @@
 # SARS-CoV-2 Proteome Analysis
 
-**This repository is a work on progress!**
+**This repository is a work in progress!**
 
 The workflow im following is related with the project structure on the repo. All initial coding is made using Notebooks,
 so probably notebooks could be updated more frequently. All this work is in `Notebooks` folder. After finishing a basic working code
