@@ -72,9 +72,9 @@ class ProcessRaw(object):
     Parameters
     ----------
     others : bool, optional
-        Process or not Non-reference samples proteins. (default True)
+        Process or not Non-reference samples proteins. (default: True)
     outdir : str, optional
-        Specify folder to write files. (default : `sars2_proteins`)
+        Specify folder to write files. (default: `sars2_proteins`)
     """
 
     def __init__(self, outdir='sars2_proteins', others=True):
