@@ -18,17 +18,18 @@ def parse_records(rawfile, others):
         # relevant header sections
         prot_name = head_sections[0]
         sample_id = head_sections[3]
+        country = head_sections[-1]
 
         if reference_seq == sample_id:
-            ref_seqs[prot_name + "|" + head_sections[1]] = str(r.seq)
+            ref_seqs[prot_name+"|"+head_sections[1]+'|'+country] = str(r.seq)
         else:
             if others:
-                other_seqs[prot_name + "|" + head_sections[1]] = str(r.seq)
+                other_seqs[prot_name+"|"+head_sections[1]+'|'+country] = str(r.seq)
 
     return ref_seqs, other_seqs
 
 
-def write_others(others_dict, outfolder):
+def write_others(others_dict, outfolder, njobs):
     """
     Write SARS-CoV-2 Non-Reference Sample proteins to Fasta Files.
     """
@@ -49,7 +50,7 @@ def write_others(others_dict, outfolder):
         """ Helper function for running multiprocessing """
         return _proteins(others_dict, protein)
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=njobs) as executor:
         for i, result in enumerate(executor.map(_helper, [p for p in protein_names])):
             print(f"Processed {protein_names[i]}...")
 
@@ -77,9 +78,10 @@ class ProcessRaw(object):
         Specify folder to write files. (default: `sars2_proteins`)
     """
 
-    def __init__(self, outdir='sars2_proteins', others=True):
+    def __init__(self, outdir='sars2_proteins', others=True, njobs=4):
 
         self._sars2protein_folder = None
+        self.njobs = njobs
         self.outdir = outdir
         self.others = others
 
@@ -114,7 +116,7 @@ class ProcessRaw(object):
         write_reference(ref_seqs, self._sars2protein_folder)
         if self.others:
             print('Writing SARS-CoV-2 Non-Reference Sample proteins...')
-            write_others(others_seqs, self._sars2protein_folder)
+            write_others(others_seqs, self._sars2protein_folder, njobs=self.njobs)
 
 def main():
   fire.Fire(ProcessRaw)
