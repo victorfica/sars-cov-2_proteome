@@ -1,6 +1,6 @@
 from Bio.Application import _Option, _Switch, _Argument, AbstractCommandline
 
-class Bowtie2Commandline(AbstractCommandline):
+class AAConCommandline(AbstractCommandline):
     """
     Method names, input file paths are required. Application will not run until these 2 arguments are provided.
     If you want results printed, both format an input file path have to be provided
@@ -48,227 +48,88 @@ class Bowtie2Commandline(AbstractCommandline):
 
     def __init__(self, cmd="compbio-conservation-1.1.jar", **kwargs):
         """Initialize the class."""
-        self.java_jar = "java -jar "
-        self.program_name = self.java_jar + cmd
+        #self.java_jar = "java -jar "
+        self.program_name = cmd
         self.parameters = [
             # ***Inputs***
             _Option(
                 ["-m", "m"],
-                """precedes a comma separated list of method names
+                """comma separated list of method names
                 EXAMPLE: 'KABAT,JORE,GERSTEIN'
                 Optional, if no method is specified request for all is assumed.""",
                 checker_function=lambda x: isinstance(x, str),
-                equate=True
+                equate=True,
+                is_required=False
             ),
             _Option(
                 ["-i", "i"],
-                """precedes a comma separated list of method names
-                EXAMPLE: 'KABAT,JORE,GERSTEIN'
-                Optional, if no method is specified request for all is assumed.""",
+                """full path to the input FASTA file, required""",
                 checker_function=lambda x: isinstance(x, str),
                 filename=True,
-                required=True,
+                is_required=True,
+                equate=True
+            ),
+            _Option(
+                ["-o", "o"],
+                """full path to the output file, optional, if no output file is
+                provided the program will output to the standard out.""",
+                checker_function=lambda x: isinstance(x, str),
+                filename=True,
+                is_required=False,
+                equate=True
+            ),
+            _Option(
+                ["-t", "t"],
+                """number of CPUs (CPU cores more precisely) to use. Optional,
+                defaults to all processors available on the machine.""",
+                checker_function=lambda x: isinstance(x, int),
+                filename=False,
+                is_required=False,
+                equate=True
+            ),
+            _Option(
+                ["-f", "f"],
+                """format  of the results in the output file
+                two different formats are possible:
+                RESULT_WITH_ALIGNMENT
+                RESULT_NO_ALIGNMENT
+                Optional, if not specified RESULT_NO_ALIGNMENT is assumed""",
+                checker_function=lambda x: isinstance(x, str),
+                filename=False,
+                is_required=False,
+                equate=True
+            ),
+            _Option(
+                ["-d", "d"],
+                """full path to a file where program execution details are to be
+                listed. Optional, if not provided, no execution statistics is produced.""",
+                checker_function=lambda x: isinstance(x, str),
+                filename=False,
+                is_required=False,
+                equate=True
+            ),
+            _Option(
+                ["-g", "g"],
+                """comma separated list of gap characters provided by the user, if
+                you're using an unusual gap character (not a -,., ,*,X) you have to
+                provide it. If you you provide this list you have to list all the gaps
+                accepted. Including those that were previously treated as a default.
+                Optional.""",
+                checker_function=lambda x: isinstance(x, str),
+                filename=False,
+                is_required=False,
                 equate=True
             ),
             _Switch(
-                ["-q", "q"],
-                "query input files are FASTQ .fq/.fastq (default)."
+                ["-n", "n"],
+                """using this key causes the results to be normalized.
+                    Normalized results have values between 0 and 1. Please note however, that
+                    some results cannot be normalized. In such a case, the system returns not
+                    normalized value, and log the issue to the standard error stream.
+                    The following formula is used for normalization
+                                    n = (d - dmin)/(dmax - dmin)
+                    Negative results first converted to positive by adding an absolute value of
+                    the most negative result. Optional."""
             ),
-            _Switch(
-                ["--tab5", "tab5"],
-                "query input files are TAB5 .tab5."
-            ),
-            _Switch(
-                ["--tab6", "tab6"],
-                "query input files are TAB6 .tab6."
-            ),
-            _Switch(
-                ["--qseq", "qseq"],
-                "query input files are in Illumina's qseq format."
-            ),
-            _Switch(
-                ["-f", "f"],
-                "query input files are (multi-)FASTA .fa/.mfa."
-            ),
-            _Switch(
-                ["-r", "r"],
-                "query input files are raw one-sequence-per-line."
-            ),
-            _Option(
-                ["-F", "F"],
-                """query input files are continuous FASTA where reads are substrings (k-mers) extracted from 
-                a FASTA file <s> and aligned at offsets 1, 1+i, 1+2i ... end of reference.""",
-                checker_function=lambda x: isinstance(x, str),
-                equate=False
-            ),
-            _Switch(
-                ["-c", "c"],
-                "<m1>, <m2>, <r> are sequences themselves, not files."
-            ),
-            _Option(
-                ["-s", "--skip", "skip"],
-                "skip the first <int> reads/pairs in the input (none)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["-u", "--upto", "upto"],
-                "stop after first <int> reads/pairs (no limit)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["-5", "--trim5", "trim5"],
-                "trim <int> bases from 5'/left end of reads (0)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["-3", "--trim3", "trim3"],
-                "trim <int> bases from 3'/right end of reads (0)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["--trim-to", "trim_to"],
-                """trim reads exceeding <int> bases from either 3' or 5' end
-                If the read end is not specified then it defaults to 3 (0)""",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Switch(
-                ["--phred33", "phred33"],
-                "qualities are Phred+33 (default)"
-            ),
-            _Switch(
-                ["--phred64", "phred64"],
-                "qualities are Phred+64"
-            ),
-            _Switch(
-                ["--int-quals", "int_quals"],
-                "qualities encoded as space-delimited integers"
-            ),
-            # ***Presets***
-            # For end-to-end
-            _Switch(
-                ["--very-fast", "very_fast"],
-                "Same as: -D 5 -R 1 -N 0 -L 22 -i S,0,2.50"
-            ),
-            _Switch(
-                ["--fast", "fast"],
-                "Same as: -D 10 -R 2 -N 0 -L 22 -i S,0,2.50"
-            ),
-            _Switch(
-                ["--sensitive", "sensitive"],
-                "Same as: -D 15 -R 2 -N 0 -L 22 -i S,1,1.15 (default)"
-            ),
-            _Switch(
-                ["--very-sensitive", "very_sensitive"],
-                "Same as: -D 20 -R 3 -N 0 -L 20 -i S,1,0.50"
-            ),
-            # For local
-            _Switch(
-                ["--very-fast-local", "very_fast_local"],
-                "Same as: -D 5 -R 1 -N 0 -L 25 -i S,1,2.00"
-            ),
-            _Switch(
-                ["--fast-local", "fast_local"],
-                "Same as: -D 10 -R 2 -N 0 -L 22 -i S,1,1.75"
-            ),
-            _Switch(
-                ["--sensitive-local", "sensitive_local"],
-                "Same as: -D 15 -R 2 -N 0 -L 20 -i S,1,0.75 (default)"
-            ),
-            _Switch(
-                ["--very-sensitive-local", "very_sensitive_local"],
-                "Same as: -D 20 -R 3 -N 0 -L 20 -i S,1,0.50"
-            ),
-            # ***Alingment***
-            _Option(
-                ["-N", "N"],
-                "max # mismatches in seed alignment; can be 0 or 1 (0)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["-L", "L"],
-                "length of seed substrings; must be >3, <32 (22)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["-i", "i"],
-                "interval between seed substrings w/r/t read len (S,1,1.15)",
-                checker_function=lambda x: isinstance(x, str),
-                equate=False,
-            ),
-            _Option(
-                ["--n-ceil", "n_ceil"],
-                "func for max # non-A/C/G/Ts permitted in aln (L,0,0.15)",
-                checker_function=lambda x: isinstance(x, str),
-                equate=False,
-            ),
-            _Option(
-                ["--dpad", "dpad"],
-                "include <int> extra ref chars on sides of DP table (15)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["--gbar", "gbar"],
-                "disallow gaps within <int> nucs of read extremes (4)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Switch(
-                ["--ignore-quals", "ignore_equals"],
-                "treat all quality values as 30 on Phred scale (off)",
-            ),
-            _Switch(
-                ["--nofw", "nofw"],
-                "do not align forward (original) version of read (off)"
-            ),
-            _Switch(
-                ["--norc", "norc"],
-                "do not align reverse-complement version of read (off)",
-            ),
-            _Switch(
-                ["--no-1mm-upfront", "no_1mm_upfront"],
-                """do not allow 1 mismatch alignments before attempting to
-                 scan for the optimal seeded alignments""",
-            ),
-            _Switch(
-                ["--end-to-end", "end_to_end"],
-                "entire read must align; no clipping (on)",
-            ),
-            _Switch(
-                ["--loca", "local"],
-                "local alignment; ends might be soft clipped (off)",
-            ),
-            # ***Scoring***
-            _Option(
-                ["--ma", "ma"],
-                "match bonus (0 for --end-to-end, 2 for --local)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["--mp", "mp"],
-                "max penalty for mismatch; lower qual = lower penalty (6)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["--np", "np"],
-                "penalty for non-A/C/G/Ts in read/ref (1)",
-                checker_function=lambda x: isinstance(x, int),
-                equate=False,
-            ),
-            _Option(
-                ["--rdg", "rdg"],
-                "read gap open, extend penalties (5,3) eg '5,3' ",
-                checker_function=lambda x: isinstance(x, str),
-                equate=False,
-            )
         ]
         AbstractCommandline.__init__(self, cmd, **kwargs)
