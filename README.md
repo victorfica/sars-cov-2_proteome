@@ -11,18 +11,21 @@ To test and develop the CLI package we have to locally install our code, for now
 
 ## Installation
 
-I strongly recommend using a Conda environment, so please create a new one first.
+I strongly recommend using a Conda environment. You can do this installing `Miniconda <https://conda.io/en/latest/miniconda.html>`__ . 
+After installation, make an environment running :
 
-Required packages for run CLI script:
 ```
-biopython (>=1.78)
-numpy (>=1.17.2)
-fire (0.3.1)
+$ conda env create -n sarscov2 jupyter biopython numpy fire 
+
 ```
 
-To install the package, use developer mode. Run inside `sars-cov-2_proteome` folder :
+This will create an environment of name 'sarscov2' and procced to install jupyter, biopython, numpy and fire python packages.
 
-``` 
+To install the package , activate de conda environment and install using pip in developer mode inside `sars-cov-2_proteome` folder :
+
+```
+$ conda activate sarscov2
+$ cd sars-cov-2_proteome
 $ pip install -e .
 ```
 
